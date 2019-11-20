@@ -124,10 +124,10 @@
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="260" />
-    <option name="y" value="80" />
-    <option name="width" value="1400" />
-    <option name="height" value="1000" />
+    <option name="x" value="1912" />
+    <option name="y" value="-8" />
+    <option name="width" value="1936" />
+    <option name="height" value="1096" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
@@ -159,7 +159,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.test2">
+  <component name="RunManager" selected="Python.sql_setstructure_2">
     <configuration name="calculation" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="ATcalculation" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -181,7 +181,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="conductors_calculation" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="sql_setstructure_2" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="ATcalculation" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -193,7 +193,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/conductors_calculation.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/sql_setstructure_2.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -267,11 +267,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.sql_setstructure_2" />
         <item itemvalue="Python.test2" />
         <item itemvalue="Python.test1" />
         <item itemvalue="Python.topology" />
         <item itemvalue="Python.calculation" />
-        <item itemvalue="Python.conductors_calculation" />
       </list>
     </recent_temporary>
   </component>

@@ -64,7 +64,7 @@ class sql_set(QWidget, Ui_Form):
         self.pushButton_check.clicked.connect(self.check)
         
 #        #显示svg
-        self.svgWidget = QtSvg.QSvgWidget('D:/Documents/eric6Document/test.svg', self.tab_2)
+        self.svgWidget = QtSvg.QSvgWidget('../data/test.svg', self.tab_2)
         self.svgWidget.setGeometry(QtCore.QRect(500, 30, 471, 591))
        
         #self.widget.addItem(self.svgWidget)
@@ -257,11 +257,11 @@ class sql_set(QWidget, Ui_Form):
         q.exec_()
 
 
-#if __name__== "__main__":
-#    app = QApplication(sys.argv)
-#    Test = sql_set()
-#    
-#    
-#    Test.show()
-#    sys.exit(app.exec_())
+# if __name__== "__main__":
+#     app = QApplication(sys.argv)
+#     Test = sql_set()
+# #
+# #
+#     Test.show()
+#     sys.exit(app.exec_())
 #    
