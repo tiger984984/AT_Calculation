@@ -15,29 +15,27 @@ from PyQt5.QtCore import Qt
 from diyDelegate import TableDelegate
 from PyQt5.QtGui import QDoubleValidator
 from PyQt5.QtWebKitWidgets import QGraphicsWebView
-from mainwindow import MainWindow
+#from mainwindow import MainWindow
 
 
 class sql_set(QWidget, Ui_Form):
     """
     Class documentation goes here.
     """
-    def __init__(self, parent=None):
+    def __init__(self,fileName, parent=None):
         """
         Constructor
         
         @param parent reference to the parent widget
         @type QWidget
         """
-        #self.fileName = None
         super(sql_set, self).__init__(parent)
+        self.fileName = fileName
         self.setupUi(self)
         self.initUi()
         
     def initUi(self):
-        #print('!!!!!!!!!!!!!!!!!!!!!!!')
-        #Main = MainWindow()  
-        #print(Main.fileName)
+        
         rou=["干燥地区", "潮湿地区", "多岩地区", "平均情况"]
         self.comboBox_rou.addItems(rou)
         delegate = TableDelegate()#添加代理，添加下拉菜单（调用TableDelegate)
@@ -136,13 +134,7 @@ class sql_set(QWidget, Ui_Form):
     
     def save1(self):
         #保存基本环境参数内容到数据库
-        #from mainwindow import MainWindow
-        #os.chdir("../user")
-        sqlname = 'topology_test.db'
-       # sqlname = self.add
-        #sqlname = dlg[0]
-        #print(dlg[0])
-        #sqlname = dlg[0]
+        sqlname=self.fileName
         print(sqlname)
         con = connect(sqlname)
         cursor = con.cursor()
@@ -159,14 +151,14 @@ class sql_set(QWidget, Ui_Form):
         
     def linesModel(self):
         print('sql_setstructure')
-       # print(MainWindow.add)
         #设置topogy数据库模型视图
         #os.path.dirname(__file__)
         #os.chdir('./user')
-        os.chdir('D:/Documents/eric6Document/user')
+        #os.chdir('D:/Documents/eric6Document/user')
+        os.chdir('./user')
         self.db = QSqlDatabase.addDatabase("QSQLITE")#设置数据库的数据库驱动类型
-        self.db.setDatabaseName('topology_test.db')#设置连接的数据库
-        
+        #self.db.setDatabaseName('topology_test.db')#设置连接的数据库
+        self.db.setDatabaseName(self.fileName)
         self.model = QSqlTableModel(self.tableView)#可以读和写的表格模型
         self.model.setTable('lines')#设置要查询的表
         #self.model.setEditStrategy(QSqlTableModel.OnManualSubmit)#设置函数编辑策略：手动提交，不自动提交
@@ -207,7 +199,8 @@ class sql_set(QWidget, Ui_Form):
         con1 = connect(linesource)
         cursor1 = con1.cursor()
         os.chdir('../user')
-        con2 = connect('topology_test.db')
+        #con2 = connect('topology_test.db')
+        con2 = connect(self.fileName)
         cursor2 = con2.cursor()
         print('------------------------------------')
         for row in range(14):
@@ -257,11 +250,11 @@ class sql_set(QWidget, Ui_Form):
         q.exec_()
 
 
-# if __name__== "__main__":
-#     app = QApplication(sys.argv)
-#     Test = sql_set()
-# #
-# #
-#     Test.show()
-#     sys.exit(app.exec_())
+#if __name__== "__main__":
+#    app = QApplication(sys.argv)
+#    Test = sql_set()
+#    
+#    
+#    Test.show()
+#    sys.exit(app.exec_())
 #    
