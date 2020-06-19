@@ -1,0 +1,110 @@
+# -*- coding: utf-8 -*-
+
+# Form implementation generated from reading ui file 'E:\牵引供电-朱明\show_results.ui'
+#
+# Created by: PyQt5 UI code generator 5.6
+#
+# WARNING! All changes made in this file will be lost!
+
+from PyQt5 import QtCore, QtGui, QtWidgets
+
+class Ui_Dialog(object):
+    def setupUi(self, Dialog):
+        Dialog.setObjectName("Dialog")
+        Dialog.resize(500, 409)
+        Dialog.setSizeGripEnabled(True)
+        self.groupBox = QtWidgets.QGroupBox(Dialog)
+        self.groupBox.setGeometry(QtCore.QRect(20, 20, 421, 91))
+        self.groupBox.setObjectName("groupBox")
+        self.pushButton_3 = QtWidgets.QPushButton(self.groupBox)
+        self.pushButton_3.setGeometry(QtCore.QRect(60, 40, 61, 21))
+        font = QtGui.QFont()
+        font.setFamily("AcadEref")
+        font.setPointSize(10)
+        self.pushButton_3.setFont(font)
+        self.pushButton_3.setObjectName("pushButton_3")
+        self.comboBox_1 = QtWidgets.QComboBox(self.groupBox)
+        self.comboBox_1.setGeometry(QtCore.QRect(170, 40, 181, 21))
+        self.comboBox_1.setObjectName("comboBox_1")
+        self.groupBox_2 = QtWidgets.QGroupBox(Dialog)
+        self.groupBox_2.setGeometry(QtCore.QRect(20, 130, 421, 91))
+        self.groupBox_2.setObjectName("groupBox_2")
+        self.pushButton_4 = QtWidgets.QPushButton(self.groupBox_2)
+        self.pushButton_4.setGeometry(QtCore.QRect(60, 40, 61, 21))
+        font = QtGui.QFont()
+        font.setFamily("AcadEref")
+        font.setPointSize(10)
+        self.pushButton_4.setFont(font)
+        self.pushButton_4.setObjectName("pushButton_4")
+        self.comboBox_2 = QtWidgets.QComboBox(self.groupBox_2)
+        self.comboBox_2.setGeometry(QtCore.QRect(170, 40, 181, 21))
+        self.comboBox_2.setObjectName("comboBox_2")
+        self.groupBox_3 = QtWidgets.QGroupBox(Dialog)
+        self.groupBox_3.setGeometry(QtCore.QRect(20, 240, 421, 161))
+        self.groupBox_3.setObjectName("groupBox_3")
+        self.radioButton_4 = QtWidgets.QRadioButton(self.groupBox_3)
+        self.radioButton_4.setGeometry(QtCore.QRect(60, 30, 81, 21))
+        font = QtGui.QFont()
+        font.setFamily("AcadEref")
+        font.setPointSize(10)
+        self.radioButton_4.setFont(font)
+        self.radioButton_4.setObjectName("radioButton_4")
+        self.radioButton_5 = QtWidgets.QRadioButton(self.groupBox_3)
+        self.radioButton_5.setGeometry(QtCore.QRect(250, 30, 81, 21))
+        font = QtGui.QFont()
+        font.setFamily("AcadEref")
+        font.setPointSize(10)
+        self.radioButton_5.setFont(font)
+        self.radioButton_5.setObjectName("radioButton_5")
+        self.lineEdit_3 = QtWidgets.QLineEdit(self.groupBox_3)
+        self.lineEdit_3.setGeometry(QtCore.QRect(80, 60, 51, 21))
+        self.lineEdit_3.setObjectName("lineEdit_3")
+        self.pushButton_2 = QtWidgets.QPushButton(self.groupBox_3)
+        self.pushButton_2.setGeometry(QtCore.QRect(80, 100, 51, 21))
+        font = QtGui.QFont()
+        font.setFamily("AcadEref")
+        font.setPointSize(10)
+        self.pushButton_2.setFont(font)
+        self.pushButton_2.setObjectName("pushButton_2")
+        self.lineEdit_4 = QtWidgets.QLineEdit(self.groupBox_3)
+        self.lineEdit_4.setGeometry(QtCore.QRect(270, 60, 31, 21))
+        self.lineEdit_4.setText("")
+        self.lineEdit_4.setObjectName("lineEdit_4")
+        self.lineEdit_5 = QtWidgets.QLineEdit(self.groupBox_3)
+        self.lineEdit_5.setGeometry(QtCore.QRect(320, 60, 31, 21))
+        self.lineEdit_5.setText("")
+        self.lineEdit_5.setObjectName("lineEdit_5")
+        self.pushButton_8 = QtWidgets.QPushButton(self.groupBox_3)
+        self.pushButton_8.setGeometry(QtCore.QRect(270, 100, 51, 21))
+        font = QtGui.QFont()
+        font.setFamily("AcadEref")
+        font.setPointSize(10)
+        self.pushButton_8.setFont(font)
+        self.pushButton_8.setObjectName("pushButton_8")
+
+        self.retranslateUi(Dialog)
+        QtCore.QMetaObject.connectSlotsByName(Dialog)
+
+    def retranslateUi(self, Dialog):
+        _translate = QtCore.QCoreApplication.translate
+        Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
+        self.groupBox.setTitle(_translate("Dialog", "电压电流-位置曲线"))
+        self.pushButton_3.setText(_translate("Dialog", "计算"))
+        self.groupBox_2.setTitle(_translate("Dialog", "短路阻抗-位置曲线"))
+        self.pushButton_4.setText(_translate("Dialog", "计算"))
+        self.groupBox_3.setTitle(_translate("Dialog", "谐波谐振计算"))
+        self.radioButton_4.setText(_translate("Dialog", "谐波次数"))
+        self.radioButton_5.setText(_translate("Dialog", "谐波范围"))
+        self.pushButton_2.setText(_translate("Dialog", "确定"))
+        self.pushButton_8.setText(_translate("Dialog", "确定"))
+
+
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    Dialog = QtWidgets.QDialog()
+    ui = Ui_Dialog()
+    ui.setupUi(Dialog)
+    Dialog.show()
+    sys.exit(app.exec_())
+

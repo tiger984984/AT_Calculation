@@ -1,6 +1,7 @@
 """
 Module implementing sql_set.
 """
+#-*- coding: UTF-8 -*-
 import sys
 import os
 
@@ -22,7 +23,7 @@ class sql_set(QWidget, Ui_Form):
     """
     Class documentation goes here.
     """
-    def __init__(self,fileName, parent=None):
+    def __init__(self,fileName, mode, parent=None):
         """
         Constructor
         
@@ -31,11 +32,11 @@ class sql_set(QWidget, Ui_Form):
         """
         super(sql_set, self).__init__(parent)
         self.fileName = fileName
+        self.mode = mode
         self.setupUi(self)
         self.initUi()
         
     def initUi(self):
-        
         rou=["干燥地区", "潮湿地区", "多岩地区", "平均情况"]
         self.comboBox_rou.addItems(rou)
         delegate = TableDelegate()#添加代理，添加下拉菜单（调用TableDelegate)
@@ -61,18 +62,21 @@ class sql_set(QWidget, Ui_Form):
         #self.pushButton.clicked.connect(self.check)
         self.pushButton_check.clicked.connect(self.check)
         
-#        #显示svg
-        self.svgWidget = QtSvg.QSvgWidget('../data/test.svg', self.tab_2)
-        self.svgWidget.setGeometry(QtCore.QRect(500, 30, 471, 591))
-       
+#        #显示导线选择tab2的svg
+        self.PictureShow()
         #self.widget.addItem(self.svgWidget)
         #self.svgWidget.setGeometry(50, 50, 755, 755)
-        self.svgWidget.show()
-
+   #     self.svgWidget.show()
+        
+        self.setelement()
 
         self.delrou()
         
-
+        self.treeWidget.clicked.connect(self.onClicked)
+        
+        #self.pushButton_add.clicked.connect(self.addAT)
+   
+            
     @pyqtSlot(bool)
     def on_radioButton_4_toggled(self, checked):
         self.lineEdit_rou.setEnabled(False)
@@ -140,14 +144,15 @@ class sql_set(QWidget, Ui_Form):
         cursor = con.cursor()
        
         #保存供电臂的数据到数据库
-        section_length = self.lineEdit_sectionlength.text()
-        delta_length = self.lineEdit_deltalength.text()
-        cursor.execute('update base set section_length=?', (section_length, ))
-        cursor.execute('update base set delta_length=?', (delta_length, ))
+        Length = self.lineEdit_sectionlength.text()
+        block_length = self.lineEdit_deltalength.text()
+        cursor.execute('update base set Length=?', (Length, ))
+        cursor.execute('update base set block_length=?', (block_length, ))
         
         con.commit()
         con.close()
         self.model_rou.submitAll()
+        
         
     def linesModel(self):
         print('sql_setstructure')
@@ -167,13 +172,17 @@ class sql_set(QWidget, Ui_Form):
         self.model.setHeaderData(0, Qt.Horizontal, 'ID')
         self.model.setHeaderData(1, Qt.Horizontal, '导线名')
         self.model.setHeaderData(2, Qt.Horizontal, '型号')
-        self.model.setHeaderData(3, Qt.Horizontal, '电阻')
-        self.model.setHeaderData(4, Qt.Horizontal, '计算半径')
-        self.model.setHeaderData(5, Qt.Horizontal, '等效半径')
-        self.model.setHeaderData(6, Qt.Horizontal, '相对磁导率')
-        self.model.setHeaderData(7, Qt.Horizontal, '导线电导率')
-        self.model.setHeaderData(8, Qt.Horizontal, '位置(x轴)')
-        self.model.setHeaderData(9, Qt.Horizontal, '位置(y轴)')
+        self.model.setHeaderData(3, Qt.Horizontal, '计算截面积(mm2)')
+        self.model.setHeaderData(4, Qt.Horizontal, '单位质量(kg/km)')
+        self.model.setHeaderData(5, Qt.Horizontal, '导电率(S/m)')
+        self.model.setHeaderData(6, Qt.Horizontal, '持续载流量(A)')
+        self.model.setHeaderData(7, Qt.Horizontal, '计算半径(mm)')
+        self.model.setHeaderData(8, Qt.Horizontal, '等效半径(mm)')
+        self.model.setHeaderData(9, Qt.Horizontal, '直流电阻(Ω)')
+        self.model.setHeaderData(10, Qt.Horizontal, '直流电阻(Ω)')
+        self.model.setHeaderData(11, Qt.Horizontal, '电阻率(Ω*m)-1')
+        self.model.setHeaderData(12, Qt.Horizontal, '坐标x(mm)')
+        self.model.setHeaderData(13, Qt.Horizontal, '坐标y(mm)')
         self.model.setFilter
         
         #self.db.close()
@@ -192,10 +201,23 @@ class sql_set(QWidget, Ui_Form):
         self.tableView.setColumnHidden(5, True)
         self.tableView.setColumnHidden(6, True)
         self.tableView.setColumnHidden(7, True)
+        self.tableView.setColumnHidden(8, True)
+        self.tableView.setColumnHidden(9, True)
+        self.tableView.setColumnHidden(10, True)
+        self.tableView.setColumnHidden(11, True)
+        
+    def PictureShow(self):  
+        if self.mode == 'AT供电方式':
+            self.svgWidget = QtSvg.QSvgWidget('../images/AT架设图.svg', self.tab_2)
+        elif self.mode == 'DT供电方式':
+            self.svgWidget = QtSvg.QSvgWidget('../images/TR架设图.svg', self.tab_2)
+        self.svgWidget.setGeometry(QtCore.QRect(500, 30, 471, 591))
+        self.svgWidget.show()
 
     def save2(self):  
         os.chdir("../data")
-        linesource = 'line_source.db'
+        #linesource = 'line_source.db'
+        linesource = 'source_lines.db'
         con1 = connect(linesource)
         cursor1 = con1.cursor()
         os.chdir('../user')
@@ -207,22 +229,30 @@ class sql_set(QWidget, Ui_Form):
 
             if row in [0, 1, 2, 5, 6, 7, 8, 9, 12, 13]:
                 #record(model中的第几行），value（model中的取值），取出某行type_name列的值
-                Type_name=self.model.record(row).value('type_name')
-                print(Type_name)
-                read=cursor1.execute('select resistance,radius,equvalent_radius,rho,mu_r from lines_source where type_name=?', (Type_name, ))
+                #Type_name=self.model.record(row).value('type_name')
+                Line_mode=self.model.record(row).value('line_mode')
+                print(Line_mode)
+                #read=cursor1.execute('select resistance,radius,equvalent_radius,rho,mu_r from lines_source where type_name=?', (Type_name, ))
+                read=cursor1.execute('select line_area,line_unit_mass,line_conductivity,line_Current_density,line_Calculation_radius,\
+                line_Equivalent_radius,line_Dc_resistance,line_Magnetic_permeability,line_Relative_permeability from lines where line_mode=?', (Line_mode, ))
                 allpara = list(read.fetchall())[0]
-                print(allpara)
+                #allpara = list(read.fetchall())
+                print('------------222222222333333333333')
+                #print(read.fetchall())[0]
                 n=row+1
-                cursor2.execute('UPDATE lines SET resistance=?,radius=?,equivalent_radius=?,rho=?,mu_r=? where ID=?', (allpara[0],allpara[1],allpara[2], allpara[3],allpara[4], n))
+                #cursor2.execute('UPDATE lines SET resistance=?,radius=?,equivalent_radius=?,rho=?,mu_r=? where ID=?', (allpara[0],allpara[1],allpara[2], allpara[3],allpara[4], n))
+                cursor2.execute('UPDATE lines SET line_area=?,line_unit_mass=?,line_conductivity=?,line_Current_density=?,line_Calculation_radius=?,line_Equivalent_radius=?,line_Dc_resistance=?,line_Magnetic_permeability=?,line_Relative_permeability=? \
+                where ID=?',(allpara[0],allpara[1],allpara[2], allpara[3],allpara[4],allpara[5], allpara[6],allpara[7],allpara[8],n))
                 #self.model.setData(self.model.index(n, ) ,'value')
             else:
-                Type_name=self.model.record(row).value('type_name')
-                print(Type_name)
-                read=cursor1.execute('select resistance,radius,equvalent_radius,rho,mu_r from rail_source where type_name=?', (Type_name, ))
+                Line_mode=self.model.record(row).value('Line_mode')
+                print(Line_mode)
+                read=cursor1.execute('select line_area,line_unit_mass,line_conductivity,line_Current_density,line_Calculation_radius,line_Equivalent_radius,line_Dc_resistance,line_Magnetic_permeability,line_Relative_permeability from rail where line_mode=?', (Line_mode, ))
                 allpara = list(read.fetchall())[0]
                 print(allpara)
                 n=row+1
-                cursor2.execute('UPDATE lines SET resistance=?,radius=?,equivalent_radius=?,rho=?,mu_r=? where ID=?', (allpara[0],allpara[1],allpara[2], allpara[3],allpara[4], n))
+                cursor2.execute('UPDATE lines SET line_area=?,line_unit_mass=?,line_conductivity=?,line_Current_density=?,line_Calculation_radius=?,line_Equivalent_radius=?,line_Dc_resistance=?,line_Magnetic_permeability=?,line_Relative_permeability=? \
+                where ID=?',(allpara[0],allpara[1],allpara[2], allpara[3],allpara[4],allpara[5], allpara[6],allpara[7],allpara[8],n))
                 
         con2.commit()
         con1.close()
@@ -249,12 +279,337 @@ class sql_set(QWidget, Ui_Form):
         q = QtCore.QEventLoop()
         q.exec_()
 
+    #对横向元件的选择配置界面进行初始设定
+    def setelement(self):
+        self.treeWidget.setColumnWidth(0, 250)#指定分类列的宽度
+     
+    def onClicked(self, qmodelLindex):
+        item = self.treeWidget.currentItem()
+        print(item.text(0))
+        if item.text(0)=='自耦变压器':
+            self.AT_ModelView()
+        elif item.text(0)=='牵引变压器':
+            self.TractionTransformer_ModelView()
+        elif item.text(0)=='上下行并联线':
+            self.UpDownConnection_ModelView()
+        elif item.text(0)=='保护线pw1-钢轨ra1':
+            self.Pw1Ra1_ModelView()
+        elif item.text(0)=='综合地线e1-钢轨ra1':
+            self.E1Ra1_ModelView()
+        elif item.text(0)=='保护线pw2-钢轨ra3':
+            self.Pw2Ra3_ModelView()
+        elif item.text(0)=='综合地线e2-钢轨ra3':
+            self.E2Ra3_ModelView()
+        elif item.text(0)=='钢轨ra1-大地g':
+            self.Ra1G_ModelView()
+        elif item.text(0)=='钢轨ra3-大地g':
+            self.Ra3G_ModelView()
+        elif item.text(0)=='综合地线e1-大地g':
+            self.E1G_ModelView()
+        elif item.text(0)=='综合地线e2-大地g':
+            self.E2G_ModelView()
+        elif item.text(0)=='并联电阻':
+            self.ParaR_ModelView()
 
-#if __name__== "__main__":
-#    app = QApplication(sys.argv)
-#    Test = sql_set()
-#    
-#    
-#    Test.show()
-#    sys.exit(app.exec_())
-#    
+
+    def AT_ModelView(self):
+        self.model_AT = QSqlTableModel(self.tableView_element)
+        self.model_AT.setTable('AT')#设置要查询的表
+        self.model_AT.setEditStrategy(QSqlTableModel.OnFieldChange)#所有变更实时更新到数据库中
+        self.model_AT.select()#使用表的数据填充模型
+        self.model_AT.setHeaderData(0, Qt.Horizontal, 'AT名称')
+        self.model_AT.setHeaderData(1, Qt.Horizontal, 'AT型号')
+        self.model_AT.setHeaderData(2, Qt.Horizontal, '位置(km)')
+        self.model_AT.setHeaderData(3, Qt.Horizontal, '漏导纳实部（Ω）')
+        self.model_AT.setHeaderData(4, Qt.Horizontal, '漏导纳虚部（Ω）')
+        self.model_AT.setFilter
+        
+        self.tableView_element.setModel(self.model_AT)
+        self.tableView_element.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)#平均分布一整行
+        
+        self.tableView_element.show()#显示tableView的内容
+        
+        self.pushButton_add.clicked.connect(self.addAT)#按加号添加一行
+        self.pushButton_del.clicked.connect(self.delAT)#按减号删除一行
+        #self.model_AT.select()
+    def addAT(self):
+        rowNum =  self.model_AT.rowCount()
+        self.model_AT.insertRow(rowNum)
+        #self.model_AT.select()
+        self.model_AT.submitAll()
+        #self.model_AT.select()
+    def delAT(self):
+        curRow = self.tableView_element.currentIndex().row()
+        self.model_AT.removeRow(curRow)
+        self.model_AT.select()
+        
+    def TractionTransformer_ModelView(self):
+        self.model_TT = QSqlTableModel(self.tableView_element)
+        self.model_TT.setTable('traction_transformer')#设置要查询的表
+        self.model_TT.setEditStrategy(QSqlTableModel.OnFieldChange)
+        self.model_TT.select()#使用表的数据填充模型
+        self.model_TT.setHeaderData(0, Qt.Horizontal, '牵引变压器名称')
+        self.model_TT.setHeaderData(1, Qt.Horizontal, '型号')
+        self.model_TT.setHeaderData(2, Qt.Horizontal, '位置(km)')
+        self.model_TT.setHeaderData(3, Qt.Horizontal, '额定容量(MVA)')
+        self.model_TT.setHeaderData(4, Qt.Horizontal, '变压比')
+        self.model_TT.setHeaderData(5, Qt.Horizontal, '短路电压比')
+        self.model_TT.setFilter
+        
+        self.tableView_element.setModel(self.model_TT)
+        self.tableView_element.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.tableView_element.show()#显示tableView的内容
+        
+        self.pushButton_add.clicked.connect(self.addTT)#按加号添加一行
+        self.pushButton_del.clicked.connect(self.delTT)#按减号删除一行
+    def addTT(self):
+        rowNum =  self.model_TT.rowCount()
+        self.model_TT.insertRow(rowNum)
+        #self.model_AT.select()
+        self.model_TT.submitAll()
+        #self.model_AT.select()
+    def delTT(self):
+        curRow = self.tableView_element.currentIndex().row()
+        self.model_TT.removeRow(curRow)
+        self.model_TT.select()    
+    
+        
+    def UpDownConnection_ModelView(self):
+        self.model_UD = QSqlTableModel(self.tableView_element)
+        self.model_UD.setTable('up_down_connection')#设置要查询的表
+        self.model_UD.setEditStrategy(QSqlTableModel.OnFieldChange)
+        self.model_UD.select()#使用表的数据填充模型
+        self.model_UD.setHeaderData(0, Qt.Horizontal, '位置(km)')
+        self.model_UD.setFilter
+        
+        self.tableView_element.setModel(self.model_UD)
+        #self.tableView_element.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.tableView_element.show()#显示tableView的内容
+        
+        self.pushButton_add.clicked.connect(self.addUD)#按加号添加一行
+        self.pushButton_del.clicked.connect(self.delUD)#按减号删除一行
+    def addUD(self):
+        rowNum =  self.model_UD.rowCount()
+        self.model_UD.insertRow(rowNum)
+        self.model_UD.submitAll()
+    def delUD(self):
+        curRow = self.tableView_element.currentIndex().row()
+        self.model_UD.removeRow(curRow)
+        self.model_UD.select()    
+        
+    def Pw1Ra1_ModelView(self):
+        self.model_P1R1 = QSqlTableModel(self.tableView_element)
+        self.model_P1R1.setTable('pw1_ra1')#设置要查询的表
+        self.model_P1R1.setEditStrategy(QSqlTableModel.OnFieldChange)
+        self.model_P1R1.select()#使用表的数据填充模型
+        self.model_P1R1.setHeaderData(0, Qt.Horizontal, '位置(km)')
+        self.model_P1R1.setFilter
+        
+        self.tableView_element.setModel(self.model_P1R1)
+        #self.tableView_element.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.tableView_element.show()#显示tableView的内容
+        
+        self.pushButton_add.clicked.connect(self.addP1R1)#按加号添加一行
+        self.pushButton_del.clicked.connect(self.delP1R1)#按减号删除一行
+    def addP1R1(self):
+        rowNum =  self.model_P1R1.rowCount()
+        self.model_P1R1.insertRow(rowNum)
+        self.model_P1R1.submitAll()
+    def delP1R1(self):
+        curRow = self.tableView_element.currentIndex().row()
+        self.model_P1R1.removeRow(curRow)
+        self.model_P1R1.select()    
+        
+    def E1Ra1_ModelView(self):
+        self.model_E1R1 = QSqlTableModel(self.tableView_element)
+        self.model_E1R1.setTable('e1_ra1')#设置要查询的表
+        self.model_E1R1.setEditStrategy(QSqlTableModel.OnFieldChange)
+        self.model_E1R1.select()#使用表的数据填充模型
+        self.model_E1R1.setHeaderData(0, Qt.Horizontal, '位置(km)')
+        self.model_E1R1.setFilter
+        
+        self.tableView_element.setModel(self.model_E1R1)
+        #self.tableView_element.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.tableView_element.show()#显示tableView的内容
+        self.pushButton_add.clicked.connect(self.addE1R1)#按加号添加一行
+        self.pushButton_del.clicked.connect(self.delE1R1)#按减号删除一行
+    def addE1R1(self):
+        rowNum =  self.model_E1R1.rowCount()
+        self.model_E1R1.insertRow(rowNum)
+        self.model_E1R1.submitAll()
+    def delE1R1(self):
+        curRow = self.tableView_element.currentIndex().row()
+        self.model_E1R1.removeRow(curRow)
+        self.model_E1R1.select()  
+        
+    def Pw2Ra3_ModelView(self):
+        self.model_P2R3 = QSqlTableModel(self.tableView_element)
+        self.model_P2R3.setTable('pw2_ra3')#设置要查询的表
+        self.model_P2R3.setEditStrategy(QSqlTableModel.OnFieldChange)
+        self.model_P2R3.select()#使用表的数据填充模型
+        self.model_P2R3.setHeaderData(0, Qt.Horizontal, '位置(km)')
+        self.model_P2R3.setFilter
+        
+        self.tableView_element.setModel(self.model_P2R3)
+        #self.tableView_element.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.tableView_element.show()#显示tableView的内容
+        self.pushButton_add.clicked.connect(self.addP2R3)#按加号添加一行
+        self.pushButton_del.clicked.connect(self.delP2R3)#按减号删除一行
+    def addP2R3(self):
+        rowNum =  self.model_P2R3.rowCount()
+        self.model_P2R3.insertRow(rowNum)
+        self.model_P2R3.submitAll()
+    def delP2R3(self):
+        curRow = self.tableView_element.currentIndex().row()
+        self.model_P2R3.removeRow(curRow)
+        self.model_P2R3.select()  
+        
+    def E2Ra3_ModelView(self):
+        self.model_E2R3 = QSqlTableModel(self.tableView_element)
+        self.model_E2R3.setTable('e2_ra3')#设置要查询的表
+        self.model_E2R3.setEditStrategy(QSqlTableModel.OnFieldChange)
+        self.model_E2R3.select()#使用表的数据填充模型
+        self.model_E2R3.setHeaderData(0, Qt.Horizontal, '位置(km)')
+        self.model_E2R3.setFilter
+        
+        self.tableView_element.setModel(self.model_E2R3)
+        #self.tableView_element.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.tableView_element.show()#显示tableView的内容
+        self.pushButton_add.clicked.connect(self.addE2R3)#按加号添加一行
+        self.pushButton_del.clicked.connect(self.delE2R3)#按减号删除一行
+    def addE2R3(self):
+        rowNum =  self.model_E2R3.rowCount()
+        self.model_E2R3.insertRow(rowNum)
+        self.model_E2R3.submitAll()
+    def delE2R3(self):
+        curRow = self.tableView_element.currentIndex().row()
+        self.model_E2R3.removeRow(curRow)
+        self.model_E2R3.select()  
+        
+    def Ra1G_ModelView(self):
+        self.model_R1G = QSqlTableModel(self.tableView_element)
+        self.model_R1G.setTable('ra1_g')#设置要查询的表
+        self.model_R1G.setEditStrategy(QSqlTableModel.OnFieldChange)
+        self.model_R1G.select()#使用表的数据填充模型
+        self.model_R1G.setHeaderData(0, Qt.Horizontal, '位置(km)')
+        self.model_R1G.setHeaderData(1, Qt.Horizontal, '阻抗值(kmΩ)')
+        self.model_R1G.setFilter
+        
+        self.tableView_element.setModel(self.model_R1G)
+        #self.tableView_element.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.tableView_element.show()#显示tableView的内容
+        self.pushButton_add.clicked.connect(self.addR1G)#按加号添加一行
+        self.pushButton_del.clicked.connect(self.delR1G)#按减号删除一行
+    def addR1G(self):
+        rowNum =  self.model_R1G.rowCount()
+        self.model_R1G.insertRow(rowNum)
+        self.model_R1G.submitAll()
+    def delR1G(self):
+        curRow = self.tableView_element.currentIndex().row()
+        self.model_R1G.removeRow(curRow)
+        self.model_R1G.select()  
+        
+    def E1G_ModelView(self):
+        self.model_E1G = QSqlTableModel(self.tableView_element)
+        self.model_E1G.setTable('e1_g')#设置要查询的表
+        self.model_E1G.setEditStrategy(QSqlTableModel.OnFieldChange)
+        self.model_E1G.select()#使用表的数据填充模型
+        self.model_E1G.setHeaderData(0, Qt.Horizontal, '位置(km)')
+        self.model_E1G.setHeaderData(1, Qt.Horizontal, '阻抗值(kmΩ)')
+        self.model_E1G.setFilter
+        
+        self.tableView_element.setModel(self.model_E1G)
+        #self.tableView_element.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.tableView_element.show()#显示tableView的内容
+        
+        self.pushButton_add.clicked.connect(self.addE1G)#按加号添加一行
+        self.pushButton_del.clicked.connect(self.delE1G)#按减号删除一行
+    def addE1G(self):
+        rowNum =  self.model_E1G.rowCount()
+        self.model_E1G.insertRow(rowNum)
+        self.model_E1G.submitAll()
+    def delE1G(self):
+        curRow = self.tableView_element.currentIndex().row()
+        self.model_E1G.removeRow(curRow)
+        self.model_E1G.select()  
+        
+    def Ra3G_ModelView(self):
+        self.model_R3G = QSqlTableModel(self.tableView_element)
+        self.model_R3G.setTable('ra3_g')#设置要查询的表
+        self.model_R3G.setEditStrategy(QSqlTableModel.OnFieldChange)
+        self.model_R3G.select()#使用表的数据填充模型
+        self.model_R3G.setHeaderData(0, Qt.Horizontal, '位置(km)')
+        self.model_R3G.setHeaderData(1, Qt.Horizontal, '阻抗值(kmΩ)')
+        self.model_R3G.setFilter
+        
+        self.tableView_element.setModel(self.model_R3G)
+        #self.tableView_element.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.tableView_element.show()#显示tableView的内容
+        
+        self.pushButton_add.clicked.connect(self.addR3G)#按加号添加一行
+        self.pushButton_del.clicked.connect(self.delR3G)#按减号删除一行
+    def addR3G(self):
+        rowNum =  self.model_R3G.rowCount()
+        self.model_R3G.insertRow(rowNum)
+        self.model_R3G.submitAll()
+    def delR3G(self):
+        curRow = self.tableView_element.currentIndex().row()
+        self.model_R3G.removeRow(curRow)
+        self.model_R3G.select()  
+        
+    def E2G_ModelView(self):
+        self.model_E2G = QSqlTableModel(self.tableView_element)
+        self.model_E2G.setTable('e2_g')#设置要查询的表
+        self.model_E2G.setEditStrategy(QSqlTableModel.OnFieldChange)
+        self.model_E2G.select()#使用表的数据填充模型
+        self.model_E2G.setHeaderData(0, Qt.Horizontal, '位置(km)')
+        self.model_E2G.setHeaderData(1, Qt.Horizontal, '阻抗值(kmΩ)')
+        self.model_E2G.setFilter
+        
+        self.tableView_element.setModel(self.model_E2G)
+        #self.tableView_element.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.tableView_element.show()#显示tableView的内容
+        
+        self.pushButton_add.clicked.connect(self.addE2G)#按加号添加一行
+        self.pushButton_del.clicked.connect(self.delE2G)#按减号删除一行
+    def addE2G(self):
+        rowNum =  self.model_E2G.rowCount()
+        self.model_E2G.insertRow(rowNum)
+        self.model_E2G.submitAll()
+    def delE2G(self):
+        curRow = self.tableView_element.currentIndex().row()
+        self.model_E2G.removeRow(curRow)
+        self.model_E2G.select()  
+        
+    def ParaR_ModelView(self):
+        self.model_PR = QSqlTableModel(self.tableView_element)
+        self.model_PR.setTable('para_resistance')#设置要查询的表
+        self.model_PR.setEditStrategy(QSqlTableModel.OnFieldChange)
+        self.model_PR.select()#使用表的数据填充模型
+        self.model_PR.setHeaderData(0, Qt.Horizontal, '位置(km)')
+        self.model_PR.setHeaderData(1, Qt.Horizontal, '阻抗值(kmΩ)')
+        self.model_PR.setFilter
+        
+        self.tableView_element.setModel(self.model_PR)
+        #self.tableView_element.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.tableView_element.show()#显示tableView的内容
+        
+        self.pushButton_add.clicked.connect(self.addPR)#按加号添加一行
+        self.pushButton_del.clicked.connect(self.delPR)#按减号删除一行
+    def addPR(self):
+        rowNum =  self.model_PR.rowCount()
+        self.model_PR.insertRow(rowNum)
+        self.model_PR.submitAll()
+    def delPR(self):
+        curRow = self.tableView_element.currentIndex().row()
+        self.model_PR.removeRow(curRow)
+        self.model_PR.select()  
+    
+if __name__== "__main__":
+    app = QApplication(sys.argv)
+    Test = sql_set()
+    
+    
+    Test.show()
+    sys.exit(app.exec_())
+    

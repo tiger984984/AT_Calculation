@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE Project SYSTEM "Project-5.1.dtd">
+<!-- eric project file for project ATcalcsoftware -->
+<!-- Saved: 2020-06-06, 21:57:05 -->
+<!-- Copyright (C) 2020 ,  -->
+<Project version="5.1">
+  <Language>en_US</Language>
+  <Hash>035661d7d8e9f285c2c8956eb7333dbaf4d8a94b</Hash>
+  <ProgLanguage mixed="0">Python3</ProgLanguage>
+  <ProjectType>PyQt5</ProjectType>
+  <Version>0.1</Version>
+  <Author></Author>
+  <Email></Email>
+  <Eol index="0"/>
+  <Sources>
+    <Source>Line_change_source.py</Source>
+    <Source>Ui_Line_change_source.py</Source>
+    <Source>Ui_calculation_setting.py</Source>
+    <Source>Ui_mainwindow.py</Source>
+    <Source>Ui_new.py</Source>
+    <Source>Ui_setstructure.py</Source>
+    <Source>Ui_show_results.py</Source>
+    <Source>Ui_sql_setstructure.py</Source>
+    <Source>__init__.py</Source>
+    <Source>calculation_setting.py</Source>
+    <Source>diyDelegate.py</Source>
+    <Source>fileName.py</Source>
+    <Source>mainwindow.py</Source>
+    <Source>show_results.py</Source>
+    <Source>sql_setstructure_2.py</Source>
+  </Sources>
+  <Forms>
+    <Form>Line_change_source.ui</Form>
+    <Form>calculation_setting.ui</Form>
+    <Form>mainwindow.ui</Form>
+    <Form>new.ui</Form>
+    <Form>setstructure.ui</Form>
+    <Form>show_results.ui</Form>
+    <Form>sql_setstructure.ui</Form>
+  </Forms>
+  <Vcs>
+    <VcsType>None</VcsType>
+  </Vcs>
+  <FiletypeAssociations>
+    <FiletypeAssociation pattern="*.e4p" type="OTHERS"/>
+    <FiletypeAssociation pattern="*.idl" type="INTERFACES"/>
+    <FiletypeAssociation pattern="*.md" type="OTHERS"/>
+    <FiletypeAssociation pattern="*.proto" type="PROTOCOLS"/>
+    <FiletypeAssociation pattern="*.py" type="SOURCES"/>
+    <FiletypeAssociation pattern="*.py3" type="SOURCES"/>
+    <FiletypeAssociation pattern="*.pyw" type="SOURCES"/>
+    <FiletypeAssociation pattern="*.pyw3" type="SOURCES"/>
+    <FiletypeAssociation pattern="*.qm" type="TRANSLATIONS"/>
+    <FiletypeAssociation pattern="*.qrc" type="RESOURCES"/>
+    <FiletypeAssociation pattern="*.rst" type="OTHERS"/>
+    <FiletypeAssociation pattern="*.ts" type="TRANSLATIONS"/>
+    <FiletypeAssociation pattern="*.txt" type="OTHERS"/>
+    <FiletypeAssociation pattern="*.ui" type="FORMS"/>
+    <FiletypeAssociation pattern="GNUmakefile" type="OTHERS"/>
+    <FiletypeAssociation pattern="Makefile" type="OTHERS"/>
+    <FiletypeAssociation pattern="README" type="OTHERS"/>
+    <FiletypeAssociation pattern="README.*" type="OTHERS"/>
+    <FiletypeAssociation pattern="makefile" type="OTHERS"/>
+  </FiletypeAssociations>
+</Project>
